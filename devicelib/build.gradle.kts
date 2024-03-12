@@ -3,7 +3,14 @@ import org.gradle.internal.impldep.bsh.commands.dir
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("maven-publish")
 }
+
+//tasks.register<Jar>("DeviceUtilsJar") {
+//    from(android.sourceSets.)
+//    archiveClassifier.set("sources")
+//}
+
 
 android {
     namespace = "com.octantis.prime.android.mylibrary"
