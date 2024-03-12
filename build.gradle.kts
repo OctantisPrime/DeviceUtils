@@ -10,9 +10,6 @@ buildscript {
         google()
         mavenCentral()
         maven(
-            uri("https://jitpack.io")
-        )
-        maven(
             uri("https://maven.aliyun.com/repository/public")
         )
         gradlePluginPortal()
