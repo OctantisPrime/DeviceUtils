@@ -1,17 +1,15 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'maven-publish'
 }
 
 android {
-    namespace 'com.octantis.prime.android.device.devicemain'
+    namespace 'com.octantis.prime.android.device.mylibrary'
     compileSdk 34
 
     defaultConfig {
         minSdk 24
 
-        versionCode 1
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
