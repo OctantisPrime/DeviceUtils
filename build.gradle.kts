@@ -7,6 +7,3 @@ plugins {
 tasks{
     delete(rootProject.buildDir)
 }
-
-
-
