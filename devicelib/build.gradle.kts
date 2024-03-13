@@ -43,9 +43,9 @@ android {
 publishing {
     publications {
         create("maven_public", MavenPublication::class) {
-            groupId = "github.com/OctantisPrime"
-            artifactId = "deviceLibrary"
-            version = "1.1"
+            groupId = "com.github.OctantisPrime"
+            artifactId = "devicelib"
+            version = "1.0.10"
         }
     }
 }
