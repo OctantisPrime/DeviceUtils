@@ -29,5 +29,4 @@ dependencyResolutionManagement {
 rootProject.name = "DeviceUtils"
 include(":app")
 include(":devicelib")
-//include(":deviceMain")
-//include(":mylibrary")
+
