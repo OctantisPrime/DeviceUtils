@@ -4,5 +4,9 @@ plugins {
     id("com.android.library") version "7.4.2" apply false
 }
 
+tasks{
+    delete(rootProject.buildDir)
+}
+
 
 
