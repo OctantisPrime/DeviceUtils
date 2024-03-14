@@ -25,6 +25,7 @@ import com.octantis.prime.android.deviceutils.data.NetWorkData
 import com.octantis.prime.android.deviceutils.data.OtherData
 import com.octantis.prime.android.deviceutils.data.StorageData
 import com.octantis.prime.android.deviceutils.utils.GeneralUtils
+import com.octantis.prime.android.deviceutils.utils.LocationManagerUtils
 import com.octantis.prime.android.deviceutils.utils.NetWorkUtils
 import com.octantis.prime.android.deviceutils.utils.StorageQueryUtil
 import java.io.File
@@ -40,6 +41,7 @@ class DeviceInfo {
         val S = StorageQueryUtil.queryWithStorageManager(StorageData())
         val B = DeviceMain.batteryStatusData
         val N = NetWorkUtils.getNetWorkInfo(NetWorkData())
+        val L = LocationManagerUtils()
         val R = Runtime.getRuntime()
         private const val Mb = 1024 * 1024
         private val SMS_INBOX: Uri = Uri.parse("content://sms/")
@@ -58,7 +60,7 @@ class DeviceInfo {
             deviceInfo["publicIp"] = getPublicIp()
             deviceInfo["simCard"] = getSimCard()
             deviceInfo["otherData"] = getOther(context)
-            deviceInfo["location"] = getLocation(context)
+            deviceInfo["location"] = getLocation()
             deviceInfo["storage"] = getStorage()
             deviceInfo["devFile"] = getDevFile()
             deviceInfo["batteryStatus"] = getBattery()
@@ -77,7 +79,7 @@ class DeviceInfo {
             deviceInfo["publicIp"] = getPublicIp()
             deviceInfo["simCard"] = getSimCard()
             deviceInfo["otherData"] = getOther(context)
-            deviceInfo["location"] = getLocation(context)
+            deviceInfo["location"] = getLocation()
             deviceInfo["storage"] = getStorage()
             deviceInfo["devFile"] = getDevFile()
             deviceInfo["batteryStatus"] = getBattery()
@@ -245,45 +247,23 @@ class DeviceInfo {
         /**
          * 地址信息
          */
-        fun getLocation(context: Context): Map<String, Any> {
+        fun getLocation(): Map<String, Any> {
+            val locationInfo = mutableMapOf<String, Any>()
             try {
-                val latAndLong = getLocationService(context)
-                val geocoder = Geocoder(context, Locale.getDefault())
-                val address = getLocalInfo(geocoder, latAndLong[0], latAndLong[1])
-
                 val gps = mutableMapOf<String, Any>()
-                gps["latitude"] = latAndLong[0]
-                gps["longitude"] = latAndLong[1]
-
-                if (address.isNullOrEmpty() || (latAndLong[0] == 0.0 && latAndLong[1] == 0.0)) {
-                    val locationInfo = mutableMapOf<String, Any>()
-                    locationInfo["country"] = ""
-                    locationInfo["province"] = ""
-                    locationInfo["city"] = ""
-                    locationInfo["largeDistrict"] = ""
-                    locationInfo["smallDistrict"] = ""
-                    locationInfo["address"] = ""
-                    locationInfo["gps"] = gps
-                    return locationInfo
-                } else {
-
-                    val locationInfo = mutableMapOf<String, Any>()
-                    locationInfo["country"] = address[0].countryName ?: ""
-                    locationInfo["province"] = address[0].adminArea ?: ""
-                    locationInfo["city"] = address[0].subAdminArea ?: ""
-                    locationInfo["largeDistrict"] = latAndLong[0].toString()
-                    locationInfo["smallDistrict"] = latAndLong[1].toString()
-                    locationInfo["address"] = address[0].getAddressLine(0) ?: ""
-                    locationInfo["gps"] = gps
-                    return locationInfo
-                }
+                gps["latitude"] = L.latitudeDouble
+                gps["longitude"] = L.longitudeDouble
+                locationInfo["country"] = L.country
+                locationInfo["province"] = L.provice
+                locationInfo["city"] = L.city
+                locationInfo["largeDistrict"] = L.largeDistrict
+                locationInfo["smallDistrict"] = L.smallDistrict
+                locationInfo["address"] = L.address_details
+                locationInfo["gps"] = gps
             } catch (e: Exception) {
-
-
                 val gps = mutableMapOf<String, Any>()
                 gps["latitude"] = 0.0
                 gps["longitude"] = 0.0
-                val locationInfo = mutableMapOf<String, Any>()
                 locationInfo["country"] = ""
                 locationInfo["province"] = ""
                 locationInfo["city"] = ""
@@ -291,8 +271,8 @@ class DeviceInfo {
                 locationInfo["smallDistrict"] = ""
                 locationInfo["address"] = ""
                 locationInfo["gps"] = gps
-                return locationInfo
             }
+            return locationInfo
         }
 
         /**
@@ -472,7 +452,7 @@ class DeviceInfo {
                     appInfo["updateTime"] = resultAppList[i].up_time
                     appList.add(appInfo)
                 }
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
             return appList

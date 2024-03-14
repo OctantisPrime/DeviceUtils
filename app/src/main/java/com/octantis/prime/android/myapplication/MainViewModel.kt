@@ -1,6 +1,7 @@
 package com.octantis.prime.android.myapplication
 
 import android.app.Activity
+import android.location.LocationManager
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import com.blankj.utilcode.util.LogUtils
@@ -13,11 +14,7 @@ class MainViewModel : ViewModel() {
     var smsCount = ObservableField("show sms")
     var callLogCount = ObservableField("show call")
     fun showData(activity: Activity) {
-        DeviceInfo.getDevice(activity, object : DeviceInfo.Companion.DInf {
-            override fun result(info: MutableMap<String, Any>) {
-                LogUtils.json(info)
-            }
-        })
+        LogUtils.json(DeviceInfo.getDevice(activity))
         name.set(DeviceMain.batteryStatusData.battery_pct.toString())
     }
 

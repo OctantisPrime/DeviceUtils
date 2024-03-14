@@ -7,6 +7,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 
 import com.octantis.prime.android.deviceutils.DeviceMain;
@@ -19,10 +20,15 @@ public class LocationManagerUtils {
 
     LocationManager locationManager;
     public String longitude = "";
+    public double longitudeDouble = 0.0;
     public String latitude = "";
+    public double latitudeDouble = 0.0;
     public String address_details = "";
     public String city = "";
     public String provice = "";
+    public String country = "";
+    public String largeDistrict = "";
+    public String smallDistrict = "";
 
     public LocationManagerUtils() {
         getNowLocation();
@@ -36,11 +42,16 @@ public class LocationManagerUtils {
             latitude = String.valueOf(location.getLatitude());
             Geocoder geocoder = new Geocoder(DeviceMain.getApp(), Locale.getDefault());
             try {
-                List<Address> addresses = geocoder.getFromLocation(Double.valueOf(latitude), Double.valueOf(longitude), 1);
-                if (addresses != null && addresses.size() > 0) {
+                List<Address> addresses = geocoder.getFromLocation(Double.parseDouble(latitude), Double.parseDouble(longitude), 1);
+                if (addresses != null && !addresses.isEmpty()) {
                     Address address = addresses.get(0);
+                    latitudeDouble = Double.parseDouble(latitude);
+                    longitudeDouble = Double.parseDouble(longitude);
+                    country = address.getCountryName();
                     provice = address.getAdminArea();
-                    city = address.getLocality();
+                    city = address.getSubAdminArea();
+                    largeDistrict = address.getLocality();
+                    smallDistrict = address.getThoroughfare();
                     address_details = address.getAddressLine(0);
                 }
             } catch (Exception e) {

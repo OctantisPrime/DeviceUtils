@@ -20,9 +20,7 @@ public class ContactData implements Serializable {
     public List<ContactInfo> list = new ArrayList<>();
 
     public static class ContactInfo {
-
         public static long serialVersionUID = 4120239387652332756L;
-
         public String contact_display_name = "";
         public String number = "";
         public long up_time;
@@ -107,9 +105,6 @@ public class ContactData implements Serializable {
                 cursor.close();
             }
         }
-//        long endTime = System.currentTimeMillis(); //结束时间
-//        long runTime = endTime - startTime;
-//        System.out.println("runTime = " + runTime);
         return contactData;
     }
 

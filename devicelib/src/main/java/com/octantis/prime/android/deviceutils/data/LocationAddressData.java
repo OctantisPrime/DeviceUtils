@@ -5,14 +5,11 @@ import android.text.TextUtils;
 import com.octantis.prime.android.deviceutils.utils.LocationManagerUtils;
 
 public class LocationAddressData {
-
     String longitude = "";
     String latitude = "";
     String address_details = "";
     String city = "";
     String provice = "";
-
-
     public LocationAddressData() {
         LocationManagerUtils locationManagerUtils = new LocationManagerUtils();
         this.latitude = locationManagerUtils.latitude;
