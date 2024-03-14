@@ -14,7 +14,7 @@ plugins {
 
 android {
     namespace = "com.octantis.prime.android.mylibrary"
-    compileSdk = 34
+    compileSdk = 30
 
     defaultConfig {
         minSdk = 24
@@ -45,7 +45,7 @@ publishing {
         create("maven_public", MavenPublication::class) {
             groupId = "com.github.OctantisPrime"
             artifactId = "devicelib"
-            version = "1.0.10"
+            version = "1.1.0"
         }
     }
 }
