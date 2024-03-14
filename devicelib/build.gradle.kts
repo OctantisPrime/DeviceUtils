@@ -37,7 +37,7 @@ publishing {
         create("maven_public", MavenPublication::class) {
             groupId = "com.github.OctantisPrime"
             artifactId = "devicelib"
-            version = "1.2.2"
+            version = "1.2.3"
 
             afterEvaluate {
                 artifact(tasks.getByName("bundleReleaseAar"))
