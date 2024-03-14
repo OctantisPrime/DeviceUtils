@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("maven-publish")
 }
+
 android {
     namespace = "com.octantis.prime.android.mylibrary"
     compileSdk = 34
@@ -28,6 +29,16 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+}
+
+publishing {
+    publications {
+        create("maven_public", MavenPublication::class) {
+            groupId = "com.github.OctantisPrime"
+            artifactId = "devicelib"
+            version = "1.1.0"
+        }
     }
 }
 
