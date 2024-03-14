@@ -16,6 +16,7 @@ import android.os.Environment
 import android.os.SystemClock
 import android.provider.CallLog
 import android.util.DisplayMetrics
+import android.util.Log
 import com.octantis.prime.android.deviceutils.data.AppListData
 import com.octantis.prime.android.deviceutils.data.GeneralData
 import com.octantis.prime.android.deviceutils.data.HardwareData
@@ -43,11 +44,14 @@ class DeviceInfo {
         private const val Mb = 1024 * 1024
         private val SMS_INBOX: Uri = Uri.parse("content://sms/")
 
+        interface DInf {
+            fun result(info: MutableMap<String, Any>)
+        }
+
         /**
          * 总体设别信息
          */
         fun getDevice(context: Context): MutableMap<String, Any> {
-
             val deviceInfo = mutableMapOf<String, Any>()
             deviceInfo["generalData"] = getGeneraData()
             deviceInfo["hardware"] = getHardware()
@@ -61,6 +65,25 @@ class DeviceInfo {
             deviceInfo["currWifi"] = getCurrWifi()
             deviceInfo["configWifi"] = getConfigWifi()
             return deviceInfo
+        }
+
+        /**
+         * 总体设别信息
+         */
+        fun getDevice(context: Context, inf: DInf) {
+            val deviceInfo = mutableMapOf<String, Any>()
+            deviceInfo["generalData"] = getGeneraData()
+            deviceInfo["hardware"] = getHardware()
+            deviceInfo["publicIp"] = getPublicIp()
+            deviceInfo["simCard"] = getSimCard()
+            deviceInfo["otherData"] = getOther(context)
+            deviceInfo["location"] = getLocation(context)
+            deviceInfo["storage"] = getStorage()
+            deviceInfo["devFile"] = getDevFile()
+            deviceInfo["batteryStatus"] = getBattery()
+            deviceInfo["currWifi"] = getCurrWifi()
+            deviceInfo["configWifi"] = getConfigWifi()
+            inf.result(deviceInfo)
         }
 
         /**
@@ -188,7 +211,7 @@ class DeviceInfo {
         /**
          * 其他信息
          */
-        private fun getOther(context: Context): Map<String, Any> {
+        fun getOther(context: Context): Map<String, Any> {
             val m = DisplayMetrics()
             val appFree = R.totalMemory() - R.freeMemory()
             val freeM = appFree * 1.00 / Mb
@@ -222,7 +245,7 @@ class DeviceInfo {
         /**
          * 地址信息
          */
-        private fun getLocation(context: Context): Map<String, Any> {
+        fun getLocation(context: Context): Map<String, Any> {
             try {
                 val latAndLong = getLocationService(context)
                 val geocoder = Geocoder(context, Locale.getDefault())
@@ -255,6 +278,8 @@ class DeviceInfo {
                     return locationInfo
                 }
             } catch (e: Exception) {
+
+
                 val gps = mutableMapOf<String, Any>()
                 gps["latitude"] = 0.0
                 gps["longitude"] = 0.0
@@ -275,7 +300,6 @@ class DeviceInfo {
          */
         fun getStorage(): Map<String, Any> {
             val storageInfo = mutableMapOf<String, Any>()
-
             storageInfo["ramTotalSize"] = S.ram_total_size.toString()
             storageInfo["ramUsableSize"] = S.ram_usable_size.toString()
             storageInfo["memoryCardSize"] = S.memory_card_size.toString()
@@ -284,25 +308,13 @@ class DeviceInfo {
             storageInfo["externalStorage"] = System.getenv("SECONDARY_STORAGE") ?: ""
             storageInfo["internalStorageUsable"] = S.internal_storage_usable.toString()
             storageInfo["internalStorageTotal"] = S.internal_storage_total.toString()
-
             return storageInfo
-
-//            return Device.Model.Storage(
-//                ramTotalSize = S.ram_total_size.toString()
-//                ramUsableSize = S.ram_usable_size.toString()
-//                memoryCardSize = S.memory_card_size.toString()
-//                memoryCardSizeUse = S.memory_card_size_use.toString()
-//                mainStorage = Environment.getExternalStorageDirectory().absolutePath
-//                externalStorage = System.getenv("SECONDARY_STORAGE") ?: ""
-//                internalStorageUsable = S.internal_storage_usable.toString()
-//                internalStorageTotal = S.internal_storage_total.toString()
-//            )
         }
 
         /**
          * 媒体文件信息
          */
-        private fun getDevFile(): Map<String, Any> {
+        fun getDevFile(): Map<String, Any> {
             val fileInfo = mutableMapOf<String, Any>()
             fileInfo["audioExternal"] = M.audio_external
             fileInfo["audioInternal"] = M.audio_internal
@@ -311,14 +323,13 @@ class DeviceInfo {
             fileInfo["imagesInternal"] = M.images_internal
             fileInfo["videoExternal"] = M.video_external
             fileInfo["videoInternal"] = M.video_internal
-
             return fileInfo
         }
 
         /**
          * 电池信息
          */
-        private fun getBattery(): Map<String, Any> {
+        fun getBattery(): Map<String, Any> {
             val batteryInfo = mutableMapOf<String, Any>()
             batteryInfo["batteryPct"] = B?.battery_pct ?: ""
             batteryInfo["isUsbCharge"] = B?.charge_type == 2
@@ -330,7 +341,7 @@ class DeviceInfo {
         /**
          * Wifi信息
          */
-        private fun getCurrWifi(): Map<String, Any> {
+        fun getCurrWifi(): Map<String, Any> {
             val wifiInfo = mutableMapOf<String, Any>()
             wifiInfo["name"] = N.current_wifi.name
             wifiInfo["bssid"] = N.current_wifi.bssid
@@ -344,18 +355,18 @@ class DeviceInfo {
          * Wifi列表
          */
         @SuppressLint("MissingPermission")
-        private fun getConfigWifi(): List<Map<String, Any>> {
+        fun getConfigWifi(): List<Map<String, Any>> {
             val networkList = N.configured_wifi
             val configWifi = mutableListOf<MutableMap<String, Any>>()
-            if (networkList.size > 0) {
+            if (!networkList.isNullOrEmpty()) {
                 for (i in 0 until networkList.size) {
                     val netWorkInfo = networkList[i]
                     val wifi = mutableMapOf<String, Any>()
-                    wifi["name"] = netWorkInfo.name
-                    wifi["bssid"] = netWorkInfo.bssid
-                    wifi["ssid"] = netWorkInfo.ssid
-                    wifi["mac"] = netWorkInfo.mac
-                    wifi["ip"] = N.ip
+                    wifi["name"] = netWorkInfo.name ?: ""
+                    wifi["bssid"] = netWorkInfo.bssid ?: ""
+                    wifi["ssid"] = netWorkInfo.ssid ?: ""
+                    wifi["mac"] = netWorkInfo.mac ?: ""
+                    wifi["ip"] = N.ip ?: ""
                     configWifi.add(wifi)
                 }
             }
@@ -367,104 +378,102 @@ class DeviceInfo {
          * 获取短信记录
          */
         fun getSmsList(context: Activity): List<Map<String, Any>> {
-
-            val contentResult = context.contentResolver
-            val projection = arrayOf(
-                "_id",
-                "thread_id",
-                "address",
-                "person",
-                "protocol",
-                "read",
-                "type",
-                "status",
-                "body",
-                "service_center",
-                "date"
-            )
-
-            val cursor = contentResult.query(
-                SMS_INBOX, projection, null, null, "date desc"
-            ) as Cursor
-
             val smsList = mutableListOf<MutableMap<String, Any>>()
+            try {
+                val contentResult = context.contentResolver
+                val projection = arrayOf(
+                    "_id",
+                    "thread_id",
+                    "address",
+                    "person",
+                    "protocol",
+                    "read",
+                    "type",
+                    "status",
+                    "body",
+                    "service_center",
+                    "date"
+                )
+                val cursor = contentResult.query(
+                    SMS_INBOX, projection, null, null, "date desc"
+                ) as Cursor
+                while (cursor.moveToNext()) {
+                    val msgNo = cursor.getString(cursor.getColumnIndexOrThrow("_id")).toLong()
+                    val threadNo =
+                        cursor.getString(cursor.getColumnIndexOrThrow("thread_id")).toLong()
+                    val address = cursor.getString(cursor.getColumnIndexOrThrow("address"))
+                    val personName = cursor.getString(cursor.getColumnIndexOrThrow("person"))
+                    val protocol =
+                        cursor.getString(cursor.getColumnIndexOrThrow("protocol"))?.toInt() ?: 1
+                    val read = cursor.getString(cursor.getColumnIndexOrThrow("read")).toInt()
+                    val type = cursor.getString(cursor.getColumnIndexOrThrow("type")).toInt()
+                    val status = cursor.getString(cursor.getColumnIndexOrThrow("status")).toInt()
+                    val bodyT = cursor.getString(cursor.getColumnIndexOrThrow("body"))
+                    val serviceCenter =
+                        cursor.getString(cursor.getColumnIndexOrThrow("service_center"))
+                    val date = cursor.getString(cursor.getColumnIndexOrThrow("date")).toLong()
 
-            while (cursor.moveToNext()) {
-                val msgNo = cursor.getString(cursor.getColumnIndexOrThrow("_id")).toLong()
-                val threadNo = cursor.getString(cursor.getColumnIndexOrThrow("thread_id")).toLong()
-                val address = cursor.getString(cursor.getColumnIndexOrThrow("address"))
-                val personName = cursor.getString(cursor.getColumnIndexOrThrow("person"))
-                val protocol =
-                    cursor.getString(cursor.getColumnIndexOrThrow("protocol"))?.toInt() ?: 1
-                val read = cursor.getString(cursor.getColumnIndexOrThrow("read")).toInt()
-                val type = cursor.getString(cursor.getColumnIndexOrThrow("type")).toInt()
-                val status = cursor.getString(cursor.getColumnIndexOrThrow("status")).toInt()
-                val bodyT = cursor.getString(cursor.getColumnIndexOrThrow("body"))
-                val serviceCenter = cursor.getString(cursor.getColumnIndexOrThrow("service_center"))
-                val date = cursor.getString(cursor.getColumnIndexOrThrow("date")).toLong()
-
-                if (smsList.size < 3000 && smsList.toString().length < 100000) {
-
-
+                    if (smsList.size < 3000 && smsList.toString().length < 100000) {
+                        val item = mutableMapOf<String, Any>()
+                        item["msgNO"] = msgNo
+                        item["threadNo"] = threadNo
+                        item["address"] = address ?: ""
+                        item["personName"] = personName ?: ""
+                        item["protocol"] = protocol
+                        item["read"] = read
+                        item["type"] = type
+                        item["status"] = status
+                        item["body"] = bodyT ?: ""
+                        item["serviceCenter"] = serviceCenter ?: ""
+                        item["date"] = date
+                        smsList.add(item)
+                    }
+                }
+                cursor.close()
+                if (smsList.isEmpty()) {
                     val item = mutableMapOf<String, Any>()
-
-                    item["msgNO"] = msgNo
-                    item["threadNo"] = threadNo
-                    item["address"] = address ?: ""
-
-                    item["personName"] = personName ?: ""
-                    item["protocol"] = protocol
-                    item["read"] = read
-
-                    item["type"] = type
-                    item["status"] = status
-                    item["body"] = bodyT ?: ""
-
-                    item["serviceCenter"] = serviceCenter ?: ""
-                    item["date"] = date
-
+                    item["msgNO"] = ""
+                    item["threadNo"] = ""
+                    item["address"] = ""
+                    item["personName"] = ""
+                    item["protocol"] = ""
+                    item["read"] = ""
+                    item["type"] = ""
+                    item["status"] = ""
+                    item["body"] = ""
+                    item["serviceCenter"] = ""
+                    item["date"] = ""
                     smsList.add(item)
                 }
+                return smsList
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return smsList
             }
-
-            cursor.close()
-
-            if (smsList.isEmpty()) {
-                val item = mutableMapOf<String, Any>()
-                item["msgNO"] = ""
-                item["threadNo"] = ""
-                item["address"] = ""
-                item["personName"] = ""
-                item["protocol"] = ""
-                item["read"] = ""
-                item["type"] = ""
-                item["status"] = ""
-                item["body"] = ""
-                item["serviceCenter"] = ""
-                item["date"] = ""
-                smsList.add(item)
-            }
-            return smsList
         }
 
         /**
          * 获取 APP 列表
          */
         fun getAppList(): MutableList<MutableMap<String, Any>> {
-            val resultAppList = AppListData.getAppListData(AppListData()).list
             val appList = mutableListOf<MutableMap<String, Any>>()
-            for (i in 0 until resultAppList.size) {
-                val appInfo = mutableMapOf<String, Any>()
-                appInfo["appName"] = resultAppList[i].app_name ?: ""
-                appInfo["packageName"] = resultAppList[i].package_name ?: ""
-                appInfo["version"] = resultAppList[i].version_name ?: ""
-                appInfo["versionCode"] = resultAppList[i].version_code.toString()
-                appInfo["appType"] =
-                    if (resultAppList[i].app_type == 1) "SYSTEM" else "NON_SYSTEM"
-                appInfo["flags"] = resultAppList[i].flags.toString()
-                appInfo["installTime"] = resultAppList[i].in_time
-                appInfo["updateTime"] = resultAppList[i].up_time
-                appList.add(appInfo)
+            try {
+                val resultAppList = AppListData.getAppListData(AppListData()).list
+                for (i in 0 until resultAppList.size) {
+                    val appInfo = mutableMapOf<String, Any>()
+                    appInfo["appName"] = resultAppList[i].app_name ?: ""
+                    appInfo["packageName"] = resultAppList[i].package_name ?: ""
+                    appInfo["version"] = resultAppList[i].version_name ?: ""
+                    appInfo["versionCode"] = resultAppList[i].version_code.toString()
+                    appInfo["appType"] =
+                        if (resultAppList[i].app_type == 1) "SYSTEM" else "NON_SYSTEM"
+                    appInfo["flags"] = resultAppList[i].flags.toString()
+                    appInfo["installTime"] = resultAppList[i].in_time
+                    appInfo["updateTime"] = resultAppList[i].up_time
+                    appList.add(appInfo)
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
             }
             return appList
         }
@@ -518,6 +527,7 @@ class DeviceInfo {
         private fun getLocalInfo(
             geocoder: Geocoder, lat: Double, long: Double
         ): MutableList<Address>? {
+            Log.i("TAG", "getLocalInfo: $lat,$long")
             return geocoder.getFromLocation(lat, long, 1)
         }
 
@@ -527,8 +537,10 @@ class DeviceInfo {
         @SuppressLint("MissingPermission")
         private fun getLocationService(context: Context): List<Double> {
             if (GeneralUtils.isChekSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                Log.e("permission", "Not Coarse Location")
                 return listOf(0.0, 0.0)
             }
+            Log.e("permission", "Has Coarse Location")
             val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val provider = manager.getProviders(true)
             var batterLocal: Location? = manager.getLastKnownLocation(provider[0])

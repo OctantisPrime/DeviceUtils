@@ -13,7 +13,11 @@ class MainViewModel : ViewModel() {
     var smsCount = ObservableField("show sms")
     var callLogCount = ObservableField("show call")
     fun showData(activity: Activity) {
-        LogUtils.json(DeviceInfo.getDevice(activity))
+        DeviceInfo.getDevice(activity, object : DeviceInfo.Companion.DInf {
+            override fun result(info: MutableMap<String, Any>) {
+                LogUtils.json(info)
+            }
+        })
         name.set(DeviceMain.batteryStatusData.battery_pct.toString())
     }
 

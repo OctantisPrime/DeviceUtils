@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.READ_CALENDAR
         ).callback(object : PermissionUtils.SimpleCallback {
             override fun onGranted() {
-                ToastUtils.showShort("Has all permission")
             }
 
             override fun onDenied() {
