@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    namespace = "com.octantis.prime.android.mylibrary"
+    namespace = "com.octantis.prime.android.deviceutils"
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 20
-        version = "1.3.0"
+        minSdk = 24
+        version = "1.3.1"
         consumerProguardFiles("consumer-rules.pro")
     }
 
