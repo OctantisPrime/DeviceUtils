@@ -9,9 +9,8 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 17
-
-        version = "1.2.4"
+        minSdk = 20
+        version = "1.2.5"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -38,7 +37,7 @@ publishing {
         create("maven_public", MavenPublication::class) {
             groupId = "com.github.OctantisPrime"
             artifactId = "devicelib"
-            version = "1.2.4"
+            version = version
 
             afterEvaluate {
                 artifact(tasks.getByName("bundleReleaseAar"))
