@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.octantis.prime.android.myapplication"
-        minSdk = 17
+        minSdk = 20
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
