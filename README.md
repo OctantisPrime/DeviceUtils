@@ -11,10 +11,3 @@
  	dependencies {
 	        implementation 'com.github.OctantisPrime:DeviceUtils:1.0.0'
 	}
-
- maven:
- 	https://jitpack.io
-
-  implementation:
-  	com.github.OctantisPrime:DeviceUtils:1.0.0
- 
